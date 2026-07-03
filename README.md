@@ -1,112 +1,122 @@
-# codexray
+<p align="center">
+  <img src="assets/banner.png" alt="codexray" width="720" />
+</p>
 
-**X-ray vision into a Codex run from Claude Code.** Run OpenAI Codex as a
-delegated task and watch it live — every command, message, file change, and
-**Codex token count** — instead of a blind blocking call that returns only at
-the end.
+<h1 align="center">codexray</h1>
+<p align="center"><strong>X-ray vision into a Codex run from Claude Code.</strong></p>
 
-```
-Claude Code ──run──▶ codexray ──▶ codex exec --json ──▶ progress.log + state.json (tokens!) ──tail──▶ Claude
-```
+<p align="center">
+  <a href="https://github.com/lidge-jun/codexray/releases"><img src="https://img.shields.io/github/v/release/lidge-jun/codexray?label=release&color=blue" alt="Release" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License: MIT" /></a>
+  <img src="https://img.shields.io/badge/node-%3E%3D18.17-brightgreen" alt="Node >= 18.17" />
+  <a href="https://lidge-jun.github.io/codexray/"><img src="https://img.shields.io/badge/docs-live%20site-blueviolet" alt="Live Site" /></a>
+</p>
+
+---
 
 ## Why
 
-The stock `codex:codex-rescue` plugin drives Codex through one blocking Bash call
-whose subagent is *forbidden to poll*, and it opts out of Codex's streaming
-notifications and drops the `thread/tokenUsage/updated` event entirely. Result:
-you see nothing until it exits, and you never see Codex's token usage — Claude
-Code's own accounting only ever measures the wrapper subagent, never the Codex
-child.
+The stock `codex:codex-rescue` plugin drives Codex through one blocking Bash call, opts out of streaming notifications, and drops the `thread/tokenUsage/updated` event entirely. Result: you see **nothing** until it exits, and you **never** see Codex's real token usage.
 
-codexray fixes both by making the **one channel that actually works** first-class:
-a separate, human-readable **progress file the main session tails on demand**,
-plus a machine-readable **state file that includes real Codex token usage**
-parsed from `codex exec --json`'s `turn.completed` event.
+codexray fixes both problems by making the **one channel that actually works** first-class: a tail-able progress file the main Claude session reads on demand, plus a machine-readable state file that includes real Codex token usage.
 
 ## How it works
 
-1. Claude launches `codexray run "<task>"` in the background (Bash
-   `run_in_background: true`), so it never blocks.
+```
+Claude Code ──run──> codexray ──> codex exec --json ──> progress.log + state.json ──tail──> Claude
+```
+
+1. Claude launches `codexray run "<task>"` in the background (`run_in_background: true`), so it never blocks.
 2. codexray spawns `codex exec --json`, parses the JSONL event stream, and writes:
-   - `<job>.progress.log` — one human-readable line per event, tail-able live.
-   - `<job>.state.json` — status, phase, session id, and cumulative token usage.
-   - `<job>.result.json` — final answer + usage + changed files, on completion.
-3. Claude `Read`s the progress file between its own steps to watch it live, and
-   is auto-notified when the background job exits.
+   - `<job>.progress.log` -- one human-readable line per event, tail-able live.
+   - `<job>.state.json` -- status, phase, session id, and cumulative token usage.
+   - `<job>.result.json` -- final answer + usage + changed files, on completion.
+3. Claude `Read`s the progress file between its own steps to watch it live, and is auto-notified when the background job exits.
 
-The transport is `codex exec --json` — the stable surface OpenAI's own SDK wraps.
-A richer live `codex app-server` path is documented as an upgrade in
-[`docs/app-server-upgrade.md`](docs/app-server-upgrade.md).
-
-## Install (as a Claude Code plugin)
-
-Point a marketplace at this repo, then:
+## Install
 
 ```
-/plugin marketplace add <owner>/codexray
+/plugin marketplace add lidge-jun/codexray
 /plugin install codexray
 ```
 
-Requirements: Node ≥ 18.17 and the `codex` CLI on `PATH` (or set `CODEX_BIN`).
-Run `codexray doctor` to verify.
+**Requirements:** Node >= 18.17 and the `codex` CLI on `PATH` (or set `CODEX_BIN`). Verify with:
+
+```
+codexray doctor
+```
 
 ## Usage
 
-From a Claude session, the `codex-run` skill and these slash commands are available:
+### Slash commands
 
 | Command | Action |
-|---------|--------|
+|---|---|
 | `/codexray:run <task>` | Delegate a task to Codex with live progress + tokens |
 | `/codexray:status [jobId]` | Status + progress tail (latest job if omitted) |
 | `/codexray:result [jobId]` | Final Codex answer |
 | `/codexray:cancel [jobId]` | Stop a running job |
 
-Directly on the CLI:
+### CLI
 
-```
+```sh
 codexray run "refactor src/foo.ts" --model gpt-5.5 --effort high --sandbox workspace-write
 codexray status            # latest job + progress tail
 codexray result            # final answer + tokens
 codexray watch --follow    # stream live progress
-codexray list
-codexray doctor
+codexray list              # all jobs
+codexray cancel            # stop latest job
+codexray doctor            # environment check
 ```
 
 ### Run options
 
-- `--model <id>` / `--effort <minimal|low|medium|high|xhigh>` — map 1:1 to Codex
-  flags, so your session's model policy carries over.
-- `--sandbox <read-only|workspace-write|danger-full-access>` (default
-  `workspace-write`); `--read-only` is a shortcut.
-- `--resume <sessionId>` / `--resume-last` — continue a Codex thread.
-- `--fast` — `service_tier=fast`.
-- `--output-schema <file>` — structured final answer (JSON Schema).
-- `--detach` — self-detach and return a job id immediately (for slash commands).
-- `--json` — machine-readable output.
+| Flag | Description |
+|---|---|
+| `--model <id>` | Codex model (maps 1:1 to Codex `-m` flag) |
+| `--effort <minimal\|low\|medium\|high\|xhigh>` | Reasoning effort level |
+| `--sandbox <read-only\|workspace-write\|danger-full-access>` | Sandbox mode (default `workspace-write`) |
+| `--resume <sessionId>` / `--resume-last` | Continue a previous Codex thread |
+| `--fast` | Use `service_tier=fast` |
+| `--output-schema <file>` | Structured final answer (JSON Schema) |
+| `--detach` | Return a job id immediately (used by slash commands) |
+| `--json` | Machine-readable output |
+
+## The drop-in subagent
+
+`codexray:codex-runner` is a drop-in replacement for the old `codex:codex-rescue`. A single Agent dispatch runs the entire Codex task and returns the final answer **plus** real Codex token usage -- no extra polling needed from the caller.
 
 ## Tokens
 
-Every job's `status`/`result` carries `usage`:
+Every `status` and `result` carries a `usage` object with real Codex-side token counts:
 
 ```json
-{ "turns": 1, "input_tokens": 16478, "cached_input_tokens": 3328,
-  "output_tokens": 27, "reasoning_output_tokens": 20, "total_tokens": 16505 }
+{
+  "input_tokens": 16478,
+  "cached_input_tokens": 3328,
+  "output_tokens": 27,
+  "reasoning_output_tokens": 20,
+  "total_tokens": 16505
+}
 ```
 
 This is the Codex-side usage the stock plugin cannot show you.
 
+## Transport
+
+The default transport is `codex exec --json` -- the stable, documented surface that OpenAI's own SDK wraps. A richer live `codex app-server` path (sub-second deltas, statusline integration) is documented as an upgrade in [`docs/app-server-upgrade.md`](docs/app-server-upgrade.md).
+
 ## Development
 
-Zero runtime dependencies. TypeScript is dev-only (JSDoc types checked with
-`tsc --checkJs`).
+**Zero runtime dependencies.** ESM `.mjs` runtime with JSDoc types checked by `tsc --checkJs`. TypeScript is dev-only.
 
-```
+```sh
 npm run typecheck   # tsc --noEmit
-npm test            # node --test (unit + a fake-codex integration test)
+npm test            # node --test (28 tests: unit + fake-codex integration)
 npm run check       # both
 npm run doctor      # environment check
 ```
 
 ## License
 
-MIT
+[MIT](LICENSE)
