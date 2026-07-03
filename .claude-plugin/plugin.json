@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "codexray",
+  "version": "0.1.0",
+  "description": "Run Codex from Claude Code with live progress and token visibility. X-ray vision into a Codex run instead of an opaque blocking call.",
+  "author": {
+    "name": "jun"
+  },
+  "keywords": ["codex", "openai", "delegation", "observability", "tokens", "progress"],
+  "homepage": "https://github.com/lidge-jun/codexray",
+  "license": "MIT"
+}

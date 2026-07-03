@@ -1,0 +1,36 @@
+{
+  "name": "@lidge/codexray",
+  "version": "0.1.0",
+  "description": "Run Codex from Claude Code with live progress and token visibility.",
+  "type": "module",
+  "bin": {
+    "codexray": "scripts/codexray.mjs"
+  },
+  "exports": {
+    ".": "./scripts/lib/index.mjs"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "check": "npm run typecheck && npm test",
+    "doctor": "node scripts/codexray.mjs doctor"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "files": [
+    ".claude-plugin",
+    "scripts",
+    "skills",
+    "commands",
+    "agents",
+    "hooks",
+    "monitors",
+    "docs"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "typescript": "^5.9.3"
+  }
+}
