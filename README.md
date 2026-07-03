@@ -14,6 +14,25 @@
 
 ---
 
+## Quick start
+
+**Two commands, zero config:**
+
+```
+/plugin marketplace add lidge-jun/codexray
+/plugin install codexray
+```
+
+Verify the install:
+
+```
+codexray doctor
+```
+
+**Requirements:** Node >= 18.17 and the `codex` CLI on `PATH` (or set `CODEX_BIN`).
+
+---
+
 ## Why
 
 The stock `codex:codex-rescue` plugin drives Codex through one blocking Bash call, opts out of streaming notifications, and drops the `thread/tokenUsage/updated` event entirely. Result: you see **nothing** until it exits, and you **never** see Codex's real token usage.
@@ -44,6 +63,31 @@ Claude Code ──run──> codexray ──> codex exec --json ──> progress
 
 ```
 codexray doctor
+```
+
+## Configure your agent
+
+### Option 1: Zero config (just ask)
+
+The `codexray:codex-runner` skill auto-triggers. Use natural-language prompts like:
+
+- "Delegate this refactor to Codex and show me the token usage."
+- "Have Codex investigate this bug (read-only) and report back."
+- "codexray로 이 모듈 리팩터하고 토큰도 알려줘"
+
+### Option 2: Make it the default
+
+Paste this snippet into your `~/.claude/CLAUDE.md` (global) or a project `CLAUDE.md` so your agent always routes Codex work through codexray:
+
+```markdown
+## Delegating to Codex
+Route Codex work through the codexray:codex-runner subagent (via the Agent tool)
+so runs are observable — one dispatch returns the final answer plus real Codex
+token usage. Pass --model / --effort by task weight (e.g. --model gpt-5.5 --effort
+high for substantial work; --model gpt-5.3-codex-spark --effort medium for quick
+lookups). Add --sandbox read-only for investigation-only tasks. For live progress
+in your current session, run `codexray run …` via Bash run_in_background and tail
+the progress file it reports.
 ```
 
 ## Usage

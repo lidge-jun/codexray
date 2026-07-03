@@ -445,14 +445,33 @@
     /* ═══════════════════════════════════════
        INSTALL
        ═══════════════════════════════════════ */
+    .install-card {
+      max-width: 720px;
+      margin: 0 auto;
+      border: 1.5px solid var(--border-active);
+      border-radius: 6px;
+      padding: 2.5rem 2.5rem 2rem;
+      background: linear-gradient(
+        170deg,
+        rgba(56, 189, 248, 0.06) 0%,
+        var(--surface) 40%,
+        var(--surface) 100%
+      );
+      box-shadow:
+        0 0 40px var(--xray-glow),
+        0 0 80px rgba(56, 189, 248, 0.06),
+        inset 0 1px 0 rgba(56, 189, 248, 0.08);
+      animation: xray-pulse 6s ease-in-out infinite;
+    }
+
     .install-header {
       text-align: center;
       margin-bottom: 2.25rem;
     }
 
     .install-header h2 {
-      font-size: clamp(1.375rem, 3vw, 1.625rem);
-      font-weight: 600;
+      font-size: clamp(1.625rem, 3.5vw, 2rem);
+      font-weight: 700;
     }
 
     .install-body {
@@ -467,16 +486,49 @@
       margin-bottom: 1.5rem;
     }
 
+    .install-verify {
+      text-align: center;
+      margin-top: 1.25rem;
+      font-family: var(--mono);
+      font-size: 0.8125rem;
+      color: var(--text-2);
+      line-height: 1.7;
+    }
+
+    .install-verify code {
+      font-family: var(--mono);
+      font-size: 0.8125rem;
+      color: var(--cyan);
+      background: rgba(34, 211, 238, 0.08);
+      padding: 0.1em 0.35em;
+      border-radius: 2px;
+    }
+
+    .install-req {
+      text-align: center;
+      margin-top: 0.75rem;
+      font-size: 0.8125rem;
+      color: var(--text-3);
+    }
+
+    .install-req code {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--text-3);
+    }
+
     .code-block {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 3px;
       overflow: hidden;
+      position: relative;
     }
 
     .code-block-bar {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       padding: 0.5rem 1rem;
       background: rgba(0, 0, 0, 0.3);
       border-bottom: 1px solid var(--border);
@@ -484,6 +536,33 @@
       font-size: 0.6875rem;
       color: var(--text-3);
       letter-spacing: 0.03em;
+    }
+
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: var(--mono);
+      font-size: 0.6875rem;
+      color: var(--text-3);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.2rem 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.03em;
+    }
+
+    .copy-btn:hover {
+      color: var(--xray);
+      border-color: var(--border-active);
+      background: rgba(56, 189, 248, 0.06);
+    }
+
+    .copy-btn.copied {
+      color: var(--green);
+      border-color: rgba(74, 222, 128, 0.3);
     }
 
     .code-block-body {
@@ -511,6 +590,86 @@
 
     .code-block-body .string {
       color: var(--xray);
+    }
+
+    /* ═══════════════════════════════════════
+       CONFIGURE
+       ═══════════════════════════════════════ */
+    .configure-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .configure-header h2 {
+      font-size: clamp(1.375rem, 3vw, 1.625rem);
+      font-weight: 600;
+    }
+
+    .configure-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .configure-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .configure-card h3 {
+      font-family: var(--mono);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-1);
+      margin-bottom: 0.375rem;
+    }
+
+    .configure-card .configure-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-3);
+      margin-bottom: 1.25rem;
+    }
+
+    .configure-card .prompt-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      flex: 1;
+    }
+
+    .configure-card .prompt-list li {
+      font-family: var(--mono);
+      font-size: 0.8125rem;
+      color: var(--text-2);
+      padding: 0.625rem 0.875rem;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      line-height: 1.5;
+    }
+
+    .configure-card .prompt-list li::before {
+      content: '\203A ';
+      color: var(--xray);
+      font-weight: 700;
+    }
+
+    .configure-card .code-block {
+      flex: 1;
+    }
+
+    .configure-card .code-block .code-block-body {
+      font-size: 0.75rem;
+      line-height: 1.75;
     }
 
     /* ═══════════════════════════════════════
@@ -698,6 +857,10 @@
       .verified-stat {
         padding: 0.75rem 1.5rem;
       }
+
+      .configure-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 640px) {
@@ -764,6 +927,14 @@
         font-size: 0.75rem;
         padding: 1rem;
       }
+
+      .install-card {
+        padding: 1.75rem 1.25rem 1.5rem;
+      }
+
+      .configure-card .code-block .code-block-body {
+        font-size: 0.6875rem;
+      }
     }
 
     @media (max-width: 380px) {
@@ -787,6 +958,7 @@
       <ul class="nav-links">
         <li><a href="https://github.com/lidge-jun/codexray" target="_blank" rel="noopener">GitHub</a></li>
         <li><a href="#install">Install</a></li>
+        <li><a href="#configure">Configure</a></li>
         <li><a href="architecture.md">Docs</a></li>
       </ul>
     </div>
@@ -898,19 +1070,73 @@
 
     <!-- ─── INSTALL ─── -->
     <section class="section container" id="install">
-      <div class="install-header">
-        <div class="eyebrow">Get started</div>
-        <h2>Two commands</h2>
+      <div class="install-card">
+        <div class="install-header">
+          <div class="eyebrow">Get started</div>
+          <h2>Two commands, zero config</h2>
+        </div>
+
+        <div class="install-body">
+          <p class="install-steps">
+            Add the plugin from the marketplace, install it, and you're done.
+          </p>
+          <div class="code-block" id="install-code-block">
+            <div class="code-block-bar">
+              <span>Claude Code</span>
+              <button class="copy-btn" data-copy="/plugin marketplace add lidge-jun/codexray&#10;/plugin install codexray" aria-label="Copy install commands">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+            <div class="code-block-body"><span class="prompt">❯ </span>/plugin marketplace add lidge-jun/codexray
+<span class="prompt">❯ </span>/plugin install codexray</div>
+          </div>
+          <p class="install-verify">Then verify: <code>codexray doctor</code></p>
+          <p class="install-req">Requires Node >= 18.17 and <code>codex</code> CLI on PATH (or <code>CODEX_BIN</code>).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── CONFIGURE ─── -->
+    <section class="section container" id="configure">
+      <div class="configure-header">
+        <div class="eyebrow">Setup</div>
+        <h2>Configure your agent</h2>
       </div>
 
-      <div class="install-body">
-        <p class="install-steps">
-          Add the plugin from the marketplace, then install it. Requires Node >= 18.17 and <code style="font-family:var(--mono);font-size:0.8125rem;color:var(--cyan);background:rgba(34,211,238,0.08);padding:0.1em 0.35em;border-radius:2px;">codex</code> on PATH.
-        </p>
-        <div class="code-block">
-          <div class="code-block-bar">Claude Code</div>
-          <div class="code-block-body"><span class="prompt">❯ </span>/plugin marketplace add lidge-jun/codexray
-<span class="prompt">❯ </span>/plugin install codexray</div>
+      <div class="configure-grid">
+        <!-- Option A: Just ask -->
+        <div class="configure-card">
+          <h3>Just ask</h3>
+          <p class="configure-subtitle">The codex-run skill auto-triggers. Try these prompts:</p>
+          <ul class="prompt-list">
+            <li>Delegate this refactor to Codex and show me the token usage.</li>
+            <li>Have Codex investigate this bug (read-only) and report back.</li>
+            <li>codexray로 이 모듈 리팩터하고 토큰도 알려줘</li>
+          </ul>
+        </div>
+
+        <!-- Option B: Make it the default -->
+        <div class="configure-card">
+          <h3>Make it the default</h3>
+          <p class="configure-subtitle">Paste into <code style="font-family:var(--mono);font-size:0.8125rem;color:var(--cyan);background:rgba(34,211,238,0.08);padding:0.1em 0.35em;border-radius:2px;">~/.claude/CLAUDE.md</code> or a project CLAUDE.md:</p>
+          <div class="code-block">
+            <div class="code-block-bar">
+              <span>CLAUDE.md</span>
+              <button class="copy-btn" data-copy="## Delegating to Codex&#10;Route Codex work through the codexray:codex-runner subagent (via the Agent tool)&#10;so runs are observable — one dispatch returns the final answer plus real Codex&#10;token usage. Pass --model / --effort by task weight (e.g. --model gpt-5.5 --effort&#10;high for substantial work; --model gpt-5.3-codex-spark --effort medium for quick&#10;lookups). Add --sandbox read-only for investigation-only tasks. For live progress&#10;in your current session, run `codexray run …` via Bash run_in_background and tail&#10;the progress file it reports." aria-label="Copy CLAUDE.md snippet">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+            <div class="code-block-body"><span class="comment">## Delegating to Codex</span>
+Route Codex work through the codexray:codex-runner subagent (via the Agent tool)
+so runs are observable — one dispatch returns the final answer plus real Codex
+token usage. Pass --model / --effort by task weight (e.g. --model gpt-5.5 --effort
+high for substantial work; --model gpt-5.3-codex-spark --effort medium for quick
+lookups). Add --sandbox read-only for investigation-only tasks. For live progress
+in your current session, run `codexray run …` via Bash run_in_background and tail
+the progress file it reports.</div>
+          </div>
         </div>
       </div>
     </section>
@@ -993,6 +1219,24 @@
       </div>
     </div>
   </footer>
+
+  <script>
+    document.querySelectorAll('.copy-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var text = btn.getAttribute('data-copy');
+        navigator.clipboard.writeText(text).then(function() {
+          var label = btn.querySelector('span');
+          var prev = label.textContent;
+          label.textContent = 'Copied!';
+          btn.classList.add('copied');
+          setTimeout(function() {
+            label.textContent = prev;
+            btn.classList.remove('copied');
+          }, 2000);
+        });
+      });
+    });
+  </script>
 
 </body>
 </html>
