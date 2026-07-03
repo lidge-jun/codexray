@@ -50,12 +50,23 @@ test('read-only keeps approval never', () => {
   assert.ok(sub(args, ['-s', 'read-only', '-c', 'approval_policy="never"']));
 });
 
-test('buildResumeArgs targets exec resume with session id and stdin prompt', () => {
+test('buildResumeArgs targets exec resume and avoids resume-incompatible flags', () => {
   const args = buildResumeArgs(baseOpts(), 'sess-123');
   assert.ok(sub(args, ['exec', 'resume']));
   assert.ok(args.includes('sess-123'));
   assert.ok(args.includes('-')); // stdin sentinel for the prompt
   assert.ok(args.includes('--json'));
+  // `codex exec resume` rejects -s and --color; sandbox goes via -c sandbox_mode
+  assert.ok(!args.includes('-s'), 'resume must not pass -s');
+  assert.ok(!args.includes('--color'), 'resume must not pass --color');
+  assert.ok(sub(args, ['-c', 'sandbox_mode="workspace-write"']));
+});
+
+test('buildResumeArgs danger-full-access uses the bypass flag, not -c sandbox_mode', () => {
+  const args = buildResumeArgs(baseOpts({ sandbox: 'danger-full-access' }), 'sess-9');
+  assert.ok(args.includes('--dangerously-bypass-approvals-and-sandbox'));
+  assert.ok(!args.some((a) => a.startsWith('sandbox_mode')));
+  assert.ok(!args.includes('-s'));
 });
 
 test('default model is omitted from argv', () => {

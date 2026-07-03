@@ -110,7 +110,9 @@ export function listJobs(opts = {}) {
     if (!name.endsWith('.state.json')) continue;
     const state = readJsonSafe(path.join(dir, name));
     if (!state || typeof state.id !== 'string') continue;
-    if (opts.claudeSessionId && state.claudeSessionId && state.claudeSessionId !== opts.claudeSessionId) {
+    // Exact-match when scoping to a session: a null-session (standalone CLI) job
+    // must NOT be swept up by a session's SessionEnd cleanup.
+    if (opts.claudeSessionId && state.claudeSessionId !== opts.claudeSessionId) {
       continue;
     }
     jobs.push(state);

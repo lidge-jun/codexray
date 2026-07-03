@@ -30,11 +30,13 @@ exactly that. Drive it from the MAIN session (not a blind subagent).
    node "${CLAUDE_PLUGIN_ROOT}/scripts/codexray.mjs" run \
      --model <model> --effort <minimal|low|medium|high|xhigh> \
      --sandbox <read-only|workspace-write|danger-full-access> \
-     "<the full task for Codex>"
+     -- "<the full task for Codex>"
    ```
 
-   For a long task, pipe it via stdin instead of quoting it as an argument.
-   `run_in_background: true` means this does NOT block you — you keep working.
+   Put the task after `--` (everything after it is taken verbatim, so a prompt
+   starting with `--` is safe). For a long task, pipe it via stdin instead —
+   `echo "<task>" | codexray run …`. `run_in_background: true` means this does
+   NOT block you; you keep working.
 
 2. **Learn the progress path.** The launch prints a one-line JSON header on
    stderr: `{"codexray":"job","jobId":"cxr-…","progressPath":"…","resultPath":"…"}`.

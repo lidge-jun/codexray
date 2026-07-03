@@ -41,6 +41,15 @@ test('listJobs filters by claude session and sorts newest first', () => {
   assert.equal(all[0].id, 'cxr-b'); // newest createdAt first
 });
 
+test('listJobs with a session filter excludes null-session and other-session jobs', () => {
+  for (const j of listJobs()) removeJob(j.id);
+  writeState(initState({ id: 'sf-a', model: 'm', effort: '', cwd: '/tmp', claudeSessionId: 'S1' }));
+  writeState(initState({ id: 'sf-null', model: 'm', effort: '', cwd: '/tmp', claudeSessionId: null }));
+  writeState(initState({ id: 'sf-c', model: 'm', effort: '', cwd: '/tmp', claudeSessionId: 'S2' }));
+  const s1 = listJobs({ claudeSessionId: 'S1' }).map((j) => j.id).sort();
+  assert.deepEqual(s1, ['sf-a']); // NOT sf-null, NOT sf-c
+});
+
 test('usageSnapshot flattens an accumulator', () => {
   const snap = usageSnapshot({ turns: 1, input_tokens: 10, cached_input_tokens: 2, output_tokens: 3, reasoning_output_tokens: 1, total_tokens: 13, last: null });
   assert.deepEqual(snap, { turns: 1, input_tokens: 10, cached_input_tokens: 2, output_tokens: 3, reasoning_output_tokens: 1, total_tokens: 13 });

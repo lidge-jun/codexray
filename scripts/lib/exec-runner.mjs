@@ -46,8 +46,8 @@ export function buildExecArgs(o) {
     args.push('-c', 'show_raw_agent_reasoning=true');
   }
   args.push('-c', `service_tier="${o.fastMode ? 'fast' : 'default'}"`);
-  args.push(...sandboxArgs(o.sandbox));
-  args.push('--skip-git-repo-check', '--color', 'never', '--json');
+  args.push(...sandboxArgs(o.sandbox, false));
+  args.push('--skip-git-repo-check', '--json');
   if (o.outputSchema) args.push('--output-schema', o.outputSchema);
   return args;
 }
@@ -69,19 +69,25 @@ export function buildResumeArgs(o, sessionId) {
     args.push('-c', 'show_raw_agent_reasoning=true');
   }
   args.push('-c', `service_tier="${o.fastMode ? 'fast' : 'default'}"`);
-  args.push(...sandboxArgs(o.sandbox));
-  args.push('--skip-git-repo-check', '--color', 'never');
+  args.push(...sandboxArgs(o.sandbox, true));
+  args.push('--skip-git-repo-check');
   args.push(sessionId, '-', '--json');
   return args;
 }
 
 /**
+ * Sandbox/approval args. `codex exec` accepts `-s <mode>`, but `codex exec
+ * resume` does NOT — on resume the sandbox must be set via the `-c
+ * sandbox_mode=...` config override instead. `--color` is rejected by resume, so
+ * it is omitted everywhere (`--json` output is not colored anyway).
  * @param {'read-only'|'workspace-write'|'danger-full-access'} sandbox
+ * @param {boolean} resume
  * @returns {string[]}
  */
-function sandboxArgs(sandbox) {
+function sandboxArgs(sandbox, resume) {
   if (sandbox === 'danger-full-access') return ['--dangerously-bypass-approvals-and-sandbox'];
-  return ['-s', sandbox, '-c', 'approval_policy="never"'];
+  const sandboxFlag = resume ? ['-c', `sandbox_mode="${sandbox}"`] : ['-s', sandbox];
+  return [...sandboxFlag, '-c', 'approval_policy="never"'];
 }
 
 /**
@@ -165,7 +171,10 @@ export async function executeRun(state, opts) {
 
   const [exitCode] = await Promise.all([
     /** @type {Promise<number>} */ (new Promise((resolve) => {
-      child.on('close', (code) => resolve(typeof code === 'number' ? code : 0));
+      // A signal-killed child reports code=null, signal=<name>. Map that (and any
+      // null code) to a non-zero exit so a killed/OOM'd run is finalized as failed
+      // (or cancelled, if the disk flag was set), never as a false 'completed'.
+      child.on('close', (code, signal) => resolve(signal ? 1 : (typeof code === 'number' ? code : 1)));
       child.on('error', () => resolve(-1));
     })),
     new Promise((resolve) => rl.on('close', resolve)),

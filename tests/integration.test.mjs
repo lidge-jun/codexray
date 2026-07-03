@@ -72,6 +72,13 @@ test('run drives a full job and reports final message + tokens', (t) => {
   assert.match(finalMsg, /updated src\/a\.ts/);
 });
 
+test('a prompt after -- that looks like a flag is accepted, not mis-parsed', (t) => {
+  if (process.platform === 'win32') return t.skip('POSIX fake-binary only');
+  const out = runCli(['run', '--json', '--sandbox', 'read-only', '--', '--review all files for security']);
+  const result = JSON.parse(out);
+  assert.equal(result.status, 'completed'); // did not error with "requires a prompt"
+});
+
 test('doctor reports the fake binary via env', (t) => {
   if (process.platform === 'win32') return t.skip('POSIX fake-binary only');
   const out = runCli(['doctor', '--json']);
