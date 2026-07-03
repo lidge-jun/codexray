@@ -673,6 +673,73 @@
     }
 
     /* ═══════════════════════════════════════
+       TOKEN COST CALLOUT
+       ═══════════════════════════════════════ */
+    .token-callout {
+      max-width: 960px;
+      margin: 0 auto;
+      padding-top: 1rem;
+    }
+
+    .token-callout-card {
+      border: 1px solid var(--border);
+      border-left: 2px solid var(--green);
+      border-radius: 3px;
+      padding: 1.5rem 1.75rem;
+      background: var(--surface);
+    }
+
+    .token-callout-card h3 {
+      font-family: var(--mono);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text-1);
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.01em;
+    }
+
+    .token-callout-items {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .token-callout-items li {
+      font-size: 0.875rem;
+      line-height: 1.55;
+      color: var(--text-2);
+      padding-left: 1.125rem;
+      position: relative;
+    }
+
+    .token-callout-items li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      opacity: 0.7;
+    }
+
+    .token-callout-items li strong {
+      color: var(--text-1);
+      font-weight: 600;
+    }
+
+    .token-callout-items li code {
+      font-family: var(--mono);
+      font-size: 0.8125rem;
+      color: var(--cyan);
+      background: rgba(34, 211, 238, 0.08);
+      padding: 0.1em 0.35em;
+      border-radius: 2px;
+    }
+
+    /* ═══════════════════════════════════════
        VERIFIED STRIP
        ═══════════════════════════════════════ */
     .verified {
@@ -1258,20 +1325,35 @@
           <div class="code-block">
             <div class="code-block-bar">
               <span>CLAUDE.md</span>
-              <button class="copy-btn" data-copy="## Delegating to Codex&#10;Route Codex work through the codexray:codex-runner subagent (via the Agent tool)&#10;so runs are observable — one dispatch returns the final answer plus real Codex&#10;token usage. Pass --model / --effort by task weight (e.g. --model gpt-5.5 --effort&#10;high for substantial work; --model gpt-5.3-codex-spark --effort medium for quick&#10;lookups). Add --sandbox read-only for investigation-only tasks. For live progress&#10;in your current session, run `codexray run …` via Bash run_in_background and tail&#10;the progress file it reports." aria-label="Copy CLAUDE.md snippet">
+              <button class="copy-btn" data-copy="## Delegating to Codex&#10;Route Codex work through codexray. The recommended default is a main-session&#10;background run (`codexray run --json …` via Bash run_in_background) — Claude reads&#10;only the final result, and live streaming is free (handled by the Node process, not&#10;a Claude agent). For a subagent shape, use codexray:codex-runner — a Haiku thin&#10;launcher that returns a job handle only, never piping Codex output through itself.&#10;Pass --model / --effort by task weight (e.g. --model gpt-5.5 --effort high for&#10;substantial work; --model gpt-5.3-codex-spark --effort medium for quick lookups).&#10;Add --sandbox read-only for investigation-only tasks." aria-label="Copy CLAUDE.md snippet">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                 <span>Copy</span>
               </button>
             </div>
             <div class="code-block-body"><span class="comment">## Delegating to Codex</span>
-Route Codex work through the codexray:codex-runner subagent (via the Agent tool)
-so runs are observable — one dispatch returns the final answer plus real Codex
-token usage. Pass --model / --effort by task weight (e.g. --model gpt-5.5 --effort
-high for substantial work; --model gpt-5.3-codex-spark --effort medium for quick
-lookups). Add --sandbox read-only for investigation-only tasks. For live progress
-in your current session, run `codexray run …` via Bash run_in_background and tail
-the progress file it reports.</div>
+Route Codex work through codexray. The recommended default is a main-session
+background run (`codexray run --json …` via Bash run_in_background) — Claude reads
+only the final result, and live streaming is free (handled by the Node process, not
+a Claude agent). For a subagent shape, use codexray:codex-runner — a Haiku thin
+launcher that returns a job handle only, never piping Codex output through itself.
+Pass --model / --effort by task weight (e.g. --model gpt-5.5 --effort high for
+substantial work; --model gpt-5.3-codex-spark --effort medium for quick lookups).
+Add --sandbox read-only for investigation-only tasks.</div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── TOKEN COST ─── -->
+    <section class="container" style="padding-bottom: 2rem;">
+      <div class="token-callout">
+        <div class="token-callout-card">
+          <h3>Zero-overhead streaming</h3>
+          <ul class="token-callout-items">
+            <li><strong>Live progress is free.</strong> Streaming is handled by a local Node process parsing <code>codex exec --json</code> &mdash; no Claude agent is involved, so watching a run costs zero model tokens.</li>
+            <li><strong>Main session reads only the result.</strong> Launch via <code>Bash run_in_background</code>, get notified on completion, and read the final output once. No middleman, no token pass-through.</li>
+            <li><strong>Subagent is a thin launcher.</strong> <code>codexray:codex-runner</code> runs on Haiku and returns only a job handle (jobId + resultPath) &mdash; it never pipes Codex output through itself.</li>
+          </ul>
         </div>
       </div>
     </section>

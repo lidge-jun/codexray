@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin.json",
   "name": "codexray",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Run Codex from Claude Code with live progress and token visibility. X-ray vision into a Codex run instead of an opaque blocking call.",
   "author": {
     "name": "jun"

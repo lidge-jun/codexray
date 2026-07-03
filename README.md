@@ -50,7 +50,7 @@ Claude Code ──run──> codexray ──> codex exec --json ──> progress
    - `<job>.progress.log` -- one human-readable line per event, tail-able live.
    - `<job>.state.json` -- status, phase, session id, and cumulative token usage.
    - `<job>.result.json` -- final answer + usage + changed files, on completion.
-3. Claude `Read`s the progress file between its own steps to watch it live, and is auto-notified when the background job exits.
+3. Claude is auto-notified when the background job exits and reads only the final result. Progress streaming is free -- it is done by the Node process, not by a Claude agent. Optionally, Claude can `Read` the progress file between its own steps, but this is not required.
 
 ## Install
 
@@ -67,27 +67,41 @@ codexray doctor
 
 ## Configure your agent
 
-### Option 1: Zero config (just ask)
+### Option 1: Main-session background run (recommended, token-lean)
 
-The `codexray:codex-runner` skill auto-triggers. Use natural-language prompts like:
+Launch `codexray run --json "<task>"` via Bash `run_in_background`. Claude is auto-notified on completion and reads **only** the final `result.json`. Live progress streaming is handled entirely by the codexray Node process (the `codex exec --json` parser) -- it costs **zero** model tokens. You can tail the progress log in a terminal for free, but reading it from the Claude session is optional.
+
+```sh
+# Example: launch in background, read result when notified
+codexray run "refactor src/foo.ts" --model gpt-5.5 --effort xhigh --json
+```
+
+This is the leanest path: no middleman, no token overhead, one read of the result by whoever needs it.
+
+### Option 2: codexray:codex-runner subagent (optional)
+
+`codexray:codex-runner` is a **Haiku-tier thin launcher**. It dispatches the Codex job and returns only a **job handle** (`jobId` + `resultPath`) -- it never pipes the Codex output through itself. Use it only if you specifically want a dispatched-subagent shape; the main-session background run above is leaner.
+
+The skill also auto-triggers on natural-language prompts like:
 
 - "Delegate this refactor to Codex and show me the token usage."
 - "Have Codex investigate this bug (read-only) and report back."
 - "codexray로 이 모듈 리팩터하고 토큰도 알려줘"
 
-### Option 2: Make it the default
+### Option 3: Make it the default
 
 Paste this snippet into your `~/.claude/CLAUDE.md` (global) or a project `CLAUDE.md` so your agent always routes Codex work through codexray:
 
 ```markdown
 ## Delegating to Codex
-Route Codex work through the codexray:codex-runner subagent (via the Agent tool)
-so runs are observable — one dispatch returns the final answer plus real Codex
-token usage. Pass --model / --effort by task weight (e.g. --model gpt-5.5 --effort
-high for substantial work; --model gpt-5.3-codex-spark --effort medium for quick
-lookups). Add --sandbox read-only for investigation-only tasks. For live progress
-in your current session, run `codexray run …` via Bash run_in_background and tail
-the progress file it reports.
+Route Codex work through codexray. The recommended default is a main-session
+background run (`codexray run --json …` via Bash run_in_background) — Claude reads
+only the final result, and live streaming is free (handled by the Node process, not
+a Claude agent). For a subagent shape, use codexray:codex-runner — a Haiku thin
+launcher that returns a job handle only, never piping Codex output through itself.
+Pass --model / --effort by task weight (e.g. --model gpt-5.5 --effort high for
+substantial work; --model gpt-5.3-codex-spark --effort medium for quick lookups).
+Add --sandbox read-only for investigation-only tasks.
 ```
 
 ## Usage
@@ -154,7 +168,13 @@ These flags also work when dispatching the subagent -- tell `codexray:codex-runn
 
 ## The drop-in subagent
 
-`codexray:codex-runner` is a drop-in replacement for the old `codex:codex-rescue`. A single Agent dispatch runs the entire Codex task and returns the final answer **plus** real Codex token usage -- no extra polling needed from the caller.
+`codexray:codex-runner` is a drop-in replacement for the old `codex:codex-rescue`. It is a **Haiku-tier thin launcher**: a single Agent dispatch starts the Codex job and returns a **job handle** (`jobId` + `resultPath`) -- it never ingests or relays the full Codex output, so the subagent's own token cost is negligible. The caller reads the result file directly.
+
+## Token cost
+
+The heavy Codex work runs **entirely off your Claude quota** -- it is billed to the Codex/OpenAI side, not to your Anthropic context window. Live progress streaming is done by codexray's Node process (the `codex exec --json` parser), costing **zero** model tokens.
+
+The recommended flow (main-session background run) reads only the final result once. Nothing is piped through a middleman. If you use the `codexray:codex-runner` subagent, it returns only a handle -- it never ingests the Codex output into its own context, so even that path adds near-zero overhead.
 
 ## Tokens
 

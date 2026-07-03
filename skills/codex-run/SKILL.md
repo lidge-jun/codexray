@@ -10,21 +10,19 @@ description: >
 
 # codex-run — observable Codex delegation
 
-The stock `codex:codex-rescue` subagent runs Codex through a single blocking
-Bash call and is forbidden to poll, so you see nothing until it exits and never
-see Codex's token usage. `codexray` fixes both: it runs `codex exec --json` and
-writes a **tail-able progress file** plus a **machine-readable state file that
-includes Codex token usage**, which you Read while the run is in flight.
+`codexray` wraps `codex exec --json`, writing a **tail-able progress file** and
+a **machine-readable state file with Codex token usage**. The Node process does
+all streaming/parsing — watching a run costs ZERO Claude model tokens.
 
-## The one channel that works (verified)
+## Recommended path: main-session background run
 
-A subagent's transcript is a huge JSONL file you must NOT dump. The only clean
-live channel is a **separate progress file you Read on demand**. codexray writes
-exactly that. Drive it from the MAIN session (not a blind subagent).
+Launch from the MAIN session. Do NOT pipe through a subagent middleman — it
+would ingest the full prompt AND full output into its own context for no added
+value.
 
-## Protocol
+### Protocol
 
-1. **Launch in the background** with the Bash tool, `run_in_background: true`:
+1. **Launch** with `run_in_background: true`:
 
    ```
    node "${CLAUDE_PLUGIN_ROOT}/scripts/codexray.mjs" run \
@@ -33,30 +31,33 @@ exactly that. Drive it from the MAIN session (not a blind subagent).
      -- "<the full task for Codex>"
    ```
 
-   Put the task after `--` (everything after it is taken verbatim, so a prompt
-   starting with `--` is safe). For a long task, pipe it via stdin instead —
-   `echo "<task>" | codexray run …`. `run_in_background: true` means this does
-   NOT block you; you keep working.
+   Put the task after `--` (everything after it is taken verbatim). For a long
+   task, pipe via stdin: `echo "<task>" | codexray run …`.
 
-2. **Learn the progress path.** The launch prints a one-line JSON header on
-   stderr: `{"codexray":"job","jobId":"cxr-…","progressPath":"…","resultPath":"…"}`.
-   Read the background task's output file once to capture `jobId` and
-   `progressPath`. (Or run `codexray status --json` to get the latest job.)
+2. **Continue working.** The run is non-blocking. Do NOT Read the verbose
+   progress file — that log is free to tail in a separate terminal but reading
+   it into context wastes tokens. Only read it if the user explicitly asks for
+   live status.
 
-3. **Watch it live.** Between your own steps, `Read` the `progressPath`. Each
-   line is one Codex event — `$` commands, `💬` messages, `✏️` file changes, and
-   a `tokens in=… out=… total=…` line after every turn. This is real live
-   progress and real Codex token usage in your context.
-
-4. **Finish.** When the background task completes you are auto-notified. Read the
-   final answer from the task output, or run:
+3. **Read the final result only.** When the background task completes (you are
+   auto-notified), read the task output or run:
 
    ```
    node "${CLAUDE_PLUGIN_ROOT}/scripts/codexray.mjs" result <jobId>
    ```
 
-5. **Report** the outcome AND the total Codex token usage (`status`/`result`
-   both carry `usage.total_tokens`) to the user.
+   This is the single read that matters — one pass, zero waste.
+
+4. **Report** the outcome AND total Codex token usage (`status`/`result` both
+   carry `usage.total_tokens`) to the user.
+
+## Secondary option: codexray:codex-runner subagent
+
+`codexray:codex-runner` is a **haiku thin launcher**. It starts the job and
+returns ONLY a handle (`jobId` + `resultPath`) — it never pipes the Codex
+output through itself. Use it only when you specifically want a dispatched-
+subagent shape (e.g., fire-and-forget while you continue heavy work). The main
+session still reads the final result itself via the returned `resultPath`.
 
 ## Control
 
@@ -89,9 +90,6 @@ Example commands:
 codexray run "find where auth is validated" --model gpt-5.3-codex-spark --effort low --fast --sandbox read-only
 codexray run "implement the retry policy" --model gpt-5.5 --effort xhigh
 ```
-
-These flags also apply when dispatching `codexray:codex-runner` — pass the
-chosen `--model`, `--effort`, and optionally `--fast` in the delegation prompt.
 
 ## Notes
 - Default sandbox is `workspace-write`. Use `--sandbox read-only` for a
