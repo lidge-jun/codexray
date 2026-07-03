@@ -817,6 +817,128 @@
     }
 
     /* ═══════════════════════════════════════
+       TUNING
+       ═══════════════════════════════════════ */
+    .tuning-header {
+      text-align: center;
+      margin-bottom: 2.25rem;
+    }
+
+    .tuning-header h2 {
+      font-size: clamp(1.375rem, 3vw, 1.625rem);
+      font-weight: 600;
+    }
+
+    .tuning-intro {
+      font-size: 0.9375rem;
+      color: var(--text-2);
+      text-align: center;
+      max-width: 40rem;
+      margin: 0 auto 2.25rem;
+      line-height: 1.65;
+    }
+
+    .knob-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      max-width: 960px;
+      margin: 0 auto 2.25rem;
+    }
+
+    .knob-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--xray);
+      border-radius: 3px;
+      padding: 1.375rem 1.25rem;
+    }
+
+    .knob-card h3 {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      margin-bottom: 0.375rem;
+      letter-spacing: -0.01em;
+    }
+
+    .knob-card h3 code {
+      font-family: var(--mono);
+      font-size: 0.8125rem;
+      color: var(--cyan);
+      background: rgba(34, 211, 238, 0.08);
+      padding: 0.1em 0.35em;
+      border-radius: 2px;
+    }
+
+    .knob-card p {
+      font-size: 0.875rem;
+      line-height: 1.55;
+      color: var(--text-2);
+    }
+
+    .knob-card .knob-map {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--text-3);
+      margin-top: 0.5rem;
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      max-width: 960px;
+      margin: 0 auto 2rem;
+    }
+
+    .preset-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1.25rem 1.375rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .preset-label {
+      font-family: var(--mono);
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-1);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .preset-label .preset-icon {
+      font-style: normal;
+    }
+
+    .preset-desc {
+      font-size: 0.8125rem;
+      color: var(--text-2);
+      line-height: 1.5;
+    }
+
+    .preset-flags {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--cyan);
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.5rem 0.75rem;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .tuning-examples {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    /* ═══════════════════════════════════════
        ANIMATION
        ═══════════════════════════════════════ */
     @keyframes xray-pulse {
@@ -859,6 +981,10 @@
       }
 
       .configure-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .knob-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -935,6 +1061,14 @@
       .configure-card .code-block .code-block-body {
         font-size: 0.6875rem;
       }
+
+      .knob-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .preset-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 380px) {
@@ -959,6 +1093,7 @@
         <li><a href="https://github.com/lidge-jun/codexray" target="_blank" rel="noopener">GitHub</a></li>
         <li><a href="#install">Install</a></li>
         <li><a href="#configure">Configure</a></li>
+        <li><a href="#tuning">Tuning</a></li>
         <li><a href="architecture.md">Docs</a></li>
       </ul>
     </div>
@@ -1199,6 +1334,70 @@ the progress file it reports.</div>
           <code>codexray list</code>,
           <code>codexray doctor</code>.
         </p>
+      </div>
+    </section>
+
+    <!-- ─── TUNING ─── -->
+    <section class="section container" id="tuning">
+      <div class="tuning-header">
+        <div class="eyebrow">Tuning</div>
+        <h2>Model, effort &amp; speed</h2>
+      </div>
+
+      <p class="tuning-intro">
+        Three flags control cost, latency, and thoroughness.
+        They map 1:1 to Codex CLI flags.
+      </p>
+
+      <div class="knob-grid">
+        <div class="knob-card">
+          <h3><code>--model &lt;id&gt;</code></h3>
+          <p>The Codex model. Use <code style="font-family:var(--mono);font-size:0.8125rem;color:var(--cyan);background:rgba(34,211,238,0.08);padding:0.1em 0.35em;border-radius:2px;">gpt-5.5</code> for substantial work. The fast, low-cost, text-only model for quick lookups is <code style="font-family:var(--mono);font-size:0.8125rem;color:var(--cyan);background:rgba(34,211,238,0.08);padding:0.1em 0.35em;border-radius:2px;">gpt-5.3-codex-spark</code>.</p>
+          <div class="knob-map">Maps to Codex <code>-m</code></div>
+        </div>
+
+        <div class="knob-card">
+          <h3><code>--effort &lt;level&gt;</code></h3>
+          <p>Reasoning effort: <code style="font-family:var(--mono);font-size:0.8125rem;color:var(--cyan);background:rgba(34,211,238,0.08);padding:0.1em 0.35em;border-radius:2px;">minimal | low | medium | high | xhigh</code>. Lower is faster &amp; cheaper; higher is more thorough.</p>
+          <div class="knob-map">Maps to Codex <code>-c model_reasoning_effort</code></div>
+        </div>
+
+        <div class="knob-card">
+          <h3><code>--fast</code></h3>
+          <p>Requests the fast service tier (<code style="font-family:var(--mono);font-size:0.8125rem;color:var(--cyan);background:rgba(34,211,238,0.08);padding:0.1em 0.35em;border-radius:2px;">service_tier=fast</code>) for lower latency where your account supports it.</p>
+          <div class="knob-map">Boolean flag, no Codex equivalent</div>
+        </div>
+      </div>
+
+      <div class="preset-grid">
+        <div class="preset-card">
+          <div class="preset-label"><i class="preset-icon">&#x26A1;</i> Fast / cheap</div>
+          <div class="preset-desc">Quick lookups, search, simple edits</div>
+          <div class="preset-flags">--model gpt-5.3-codex-spark --effort low --fast</div>
+        </div>
+
+        <div class="preset-card">
+          <div class="preset-label"><i class="preset-icon">&#x1F6E0;</i> Substantial</div>
+          <div class="preset-desc">Implementation, deep debugging, design</div>
+          <div class="preset-flags">--model gpt-5.5 --effort xhigh</div>
+        </div>
+      </div>
+
+      <div class="tuning-examples">
+        <div class="code-block">
+          <div class="code-block-bar">
+            <span>Examples</span>
+            <button class="copy-btn" data-copy="codexray run &quot;find where auth is validated&quot; --model gpt-5.3-codex-spark --effort low --fast --sandbox read-only&#10;codexray run &quot;implement the retry policy&quot; --model gpt-5.5 --effort xhigh" aria-label="Copy tuning examples">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>Copy</span>
+            </button>
+          </div>
+          <div class="code-block-body"><span class="comment"># Fast lookup (read-only)</span>
+<span class="prompt">❯ </span>codexray run <span class="string">"find where auth is validated"</span> <span class="flag">--model</span> gpt-5.3-codex-spark <span class="flag">--effort</span> low <span class="flag">--fast</span> <span class="flag">--sandbox</span> read-only
+
+<span class="comment"># Substantial implementation</span>
+<span class="prompt">❯ </span>codexray run <span class="string">"implement the retry policy"</span> <span class="flag">--model</span> gpt-5.5 <span class="flag">--effort</span> xhigh</div>
+        </div>
       </div>
     </section>
 

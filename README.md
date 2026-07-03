@@ -126,6 +126,32 @@ codexray doctor            # environment check
 | `--detach` | Return a job id immediately (used by slash commands) |
 | `--json` | Machine-readable output |
 
+### Model, effort & speed
+
+Three flags tune the cost/speed/quality trade-off of a codexray run:
+
+| Flag | What it does | Maps to Codex |
+|---|---|---|
+| `--model <id>` | Codex model to use. `gpt-5.5` for substantial work; `gpt-5.3-codex-spark` (the "spark" model) for fast, low-cost, text-only lookups. | `-m` |
+| `--effort <minimal\|low\|medium\|high\|xhigh>` | Reasoning effort. Lower = faster & cheaper; higher = more thorough but slower and pricier. Omit to use the model's own default. | `-c model_reasoning_effort` |
+| `--fast` | Request the FAST service tier (`service_tier=fast`) for lower latency where your account supports it. | `service_tier=fast` |
+
+**Ready-to-use presets:**
+
+| Preset | When to use | Flags |
+|---|---|---|
+| Fast / cheap | Quick lookups, search, simple edits | `--model gpt-5.3-codex-spark --effort low --fast` |
+| Substantial | Implementation, deep debugging, design | `--model gpt-5.5 --effort xhigh` |
+
+**Examples:**
+
+```sh
+codexray run "find where auth is validated" --model gpt-5.3-codex-spark --effort low --fast --sandbox read-only
+codexray run "implement the retry policy" --model gpt-5.5 --effort xhigh
+```
+
+These flags also work when dispatching the subagent -- tell `codexray:codex-runner` to use e.g. `--model gpt-5.3-codex-spark --effort low --fast`.
+
 ## The drop-in subagent
 
 `codexray:codex-runner` is a drop-in replacement for the old `codex:codex-rescue`. A single Agent dispatch runs the entire Codex task and returns the final answer **plus** real Codex token usage -- no extra polling needed from the caller.

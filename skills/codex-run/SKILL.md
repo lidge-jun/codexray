@@ -66,10 +66,34 @@ exactly that. Drive it from the MAIN session (not a blind subagent).
 - `codexray list` — recent jobs with token totals.
 - `codexray doctor` — verify the codex binary, version, and data dir.
 
-## Notes
+## Model, effort & speed
 
-- Model/effort map 1:1 to Codex flags (`-m`, `-c model_reasoning_effort`), so the
-  session's model policy carries over unchanged.
+Three knobs (all `codexray run` flags, mapping 1:1 to Codex):
+
+| Flag | What it controls | Codex equivalent |
+|------|-----------------|------------------|
+| `--model <id>` | Codex model | `-m` |
+| `--effort <minimal\|low\|medium\|high\|xhigh>` | Reasoning effort. Lower = faster/cheaper; higher = more thorough. | `-c model_reasoning_effort` |
+| `--fast` | Request the FAST service tier (`service_tier=fast`) for lower latency. | (service tier) |
+
+**Two presets — pick by task weight:**
+
+- **Fast / cheap** (quick lookups, search, simple edits):
+  `--model gpt-5.3-codex-spark --effort low --fast`
+- **Substantial** (implementation, deep debugging, design):
+  `--model gpt-5.5 --effort xhigh`
+
+Example commands:
+
+```
+codexray run "find where auth is validated" --model gpt-5.3-codex-spark --effort low --fast --sandbox read-only
+codexray run "implement the retry policy" --model gpt-5.5 --effort xhigh
+```
+
+These flags also apply when dispatching `codexray:codex-runner` — pass the
+chosen `--model`, `--effort`, and optionally `--fast` in the delegation prompt.
+
+## Notes
 - Default sandbox is `workspace-write`. Use `--sandbox read-only` for a
   non-mutating investigation; `danger-full-access` bypasses the sandbox.
 - Resume a prior Codex thread with `--resume <sessionId>` or `--resume-last`.

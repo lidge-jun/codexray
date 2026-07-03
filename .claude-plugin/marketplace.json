@@ -5,13 +5,13 @@
   },
   "metadata": {
     "description": "Observable Codex delegation for Claude Code — live progress + token visibility.",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "plugins": [
     {
       "name": "codexray",
       "description": "Run Codex via `codex exec --json` with live progress and token visibility, instead of an opaque blocking call.",
-      "version": "0.1.3",
+      "version": "0.1.4",
       "author": {
         "name": "jun"
       },
