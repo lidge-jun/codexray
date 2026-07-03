@@ -1,6 +1,6 @@
 {
   "name": "@lidge/codexray",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Run Codex from Claude Code with live progress and token visibility.",
   "type": "module",
   "bin": {

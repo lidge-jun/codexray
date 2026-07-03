@@ -1,10 +1,7 @@
-{
-  "description": "Experimental: push live codexray progress into the conversation. Requires Claude Code >= 2.1.105. Starts when the codex-run skill is invoked and tails the running job's progress, delivering each line to Claude as a notification.",
-  "monitors": [
-    {
-      "name": "codexray-progress",
-      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/codexray.mjs\" watch --follow",
-      "when": "on-skill-invoke:codex-run"
-    }
-  ]
-}
+[
+  {
+    "name": "codexray-progress",
+    "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/codexray.mjs\" watch --follow",
+    "when": "on-skill-invoke:codex-run"
+  }
+]
