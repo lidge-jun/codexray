@@ -1,6 +1,7 @@
 [
   {
     "name": "codexray-progress",
+    "description": "Stream live codexray progress into the conversation while a Codex run is active (experimental; requires Claude Code >= 2.1.105).",
     "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/codexray.mjs\" watch --follow",
     "when": "on-skill-invoke:codex-run"
   }
